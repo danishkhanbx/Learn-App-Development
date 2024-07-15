@@ -1,4 +1,7 @@
 1. The Project folder name is set to "flutter_app"
+- Project Name: flutter_app 
+- Company Domain: smartherd.com
+- Package Name: com.smartherd.flutterapp
 
 2. It has a "lib" folder in which the 'main.dart' file is.
 
