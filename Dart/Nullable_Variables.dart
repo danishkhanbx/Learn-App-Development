@@ -16,9 +16,9 @@ T? firstNonNull<T>(List<T?> items){
 } 
 
 void main() {
-  String? name;
-  int? age = 36;
-  age = null;
+  String? name;  // initialized to null by default
+  int? age = 36;  // initialized to non-null
+  age = null; // can be re-assigned to null
   print(lastName('Danish'));
   print(lastName('Danish Khan'));
 }
