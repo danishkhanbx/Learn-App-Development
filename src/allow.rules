@@ -1,0 +1,33 @@
+service cloud.firestore {
+    match /databases/{database}/documents {
+
+        // allow <what> <under what conditions?>
+        match  /users/{docId=**} {
+
+            // single document read and queries of multiple documents
+            allow read;
+            // create, update and delete one or more documents
+            allow write;
+            // read request for a single document
+            allow get;
+            // read queries of collection
+            allow list;
+            // create a new document
+            allow create;
+            // update a existing document
+            allow update;
+            // delete to remove a document
+            allow delete;
+
+            // the automatic condition of allow is true if you don't mention it like above
+            // if two whats have the same condition seprate them by a comma
+            allow create, update: false;
+            // rules look for the FIRST allow meaning create and upate will be true in the end app
+            // everything is false by default meaning locked out until we allow it
+
+            
+
+        }
+
+    }
+}

@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+    match /databases/{database}/documents {
+
+        match /users/{userId} {
+            allow read: if isSignedIn();
+            allow update, delete: if hasAnyRole(['admin']);
+        }
+
+        match /posts/{postId} {
+            allow read: if (isSignedIn() && resource.data.published == true) || hasAnyRole(['admin']);
+            allow create: if isValidNewPost() && hasAnyRole(['author']);
+            allow update: if isValidUpdatedPost() && hasAnyRole(['author', 'editor', 'admin']);
+            allow delete: if hasAnyRole(['admin']);
+        }
+
+        // Function to check if the user is signed in
+        function isSignedIn() {
+            return request.auth != null;
+        }
+
+        // takes a list of strings as an argument, if any one of the role is in the list returns true
+        function hasAnyRole(roles) {
+            return isSignedIn() &&
+                get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles.hasAny(roles);
+                // we compare the roles attached with user and the role required to perform action
+        }
+
+        // we took out the data and validate owner & timestamp then check if post has all the required roles
+        function isValidNewPost() {
+            let post = request.resource.data;
+            let isOwner = post.uid == request.auth.uid;
+            let isNow = request.time == post.createdAt;
+            let hasRequiredFields = post.keys().hasAll(['content', 'uid', 'createdAt', 'published']);
+
+            return isOwner && hasRequiredFields && isNow;
+        }
+
+        // we only allow some of the fields to be updated and check post content
+        function isValidUpdatedPost() {
+            let post = request.resource.data;
+            let hasRequiredFields = post.keys().hasAny(['content', 'updatedAt', 'published']);
+            let isValidContent = post.content is string && post.content.size() < 5000;
+
+            return hasRequiredFields && isValidContent;
+        }
+
+    }
+}

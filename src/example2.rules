@@ -1,0 +1,40 @@
+rules_version =  '2';
+service cloud.firestore {
+
+    match /databases/{database}/documents {
+
+        // first we lock down all the actions in the database
+        match /{document=**}{
+            allow read, write: if false;
+        }
+
+        match /messages/{docId} {
+            allow read: if request.auth.uid != null;
+            allow create: if canCreateMessage();
+        }
+
+
+        function canCreateMessage() {
+            let isSignedIn = request.auth.uid != null;
+
+            // now checking the SignedIn userId vs message userId
+            let isOwner = request.auth.uid == request.resource.data.uid;
+
+            // we don't allow long messages like Twitter, if size is 200 < 255 returns true
+            let isNotTooLong = request.resource.data.text.size() < 255;
+
+            // don't allow if time in request is anyother than current
+            let isNow = request.time == request.resource.data.createdAt;
+
+            // If the user exists in banned collection it will return true, T == F returns false, else F == F returns true. 
+            let isNotBanned = exists(/databases/$(database)/documents/banned/$(request.auth.uid)) == false;
+
+            // It will check one thing at a time in the order. All the variable must be true to allow create operation
+            return isSignedIn && isOwner && isNotTooLong && isNow && isNotBanned;
+
+        }
+
+
+
+    }
+}

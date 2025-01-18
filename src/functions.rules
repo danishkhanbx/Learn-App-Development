@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+    match /databases/{database}/documents {
+        
+        
+        match /users/{userId} {
+
+            allow read: if isLoggedIn();
+            // passing the variable as arguments
+            allow write: if belongsTo(userId);
+
+        }
+
+        match /todos/{docId} {
+
+            allow read: if resource.data.status == 'published';
+
+            allow create: if canCreateTodo();
+
+            allow update: if belongsTo(docId)
+                          && request.resource.data.keys().hasOnly(['text', 'status']);    
+
+        }
+
+        // function keyword: allows you to extract logic from rules and reuse it multiple times
+        function isLoggedIn() {
+            return request.auth.uid != null;  // returns true or false
+        }
+
+        // it takes the variables as parameters
+        function belongsTo(userId){
+            return request.auth.uid == userId || request.auth.uid == resource.data.uid;
+        }
+
+        function canCreateTodo() {
+            // let keyword: create variables to store values, requires version 2
+            let uid = request.auth.uid;
+            let hasValidTimestamp = request.time == request.resource.data.createdAt;
+
+            // we can call functions within a function
+            return belongsTo(uid) && hasValidTimestamp;
+        }
+
+        // Limitations:
+        // No recursvie function
+        // Maximum calling 10 functions within a function
+
+    }
+}
