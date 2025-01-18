@@ -14,12 +14,12 @@ import {
 } from 'firebase/auth'
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBWin_Ya2AxpYJUcSZivymlOwEpJONU4bY",
-  authDomain: "basket-ball-fm9a4f.firebaseapp.com",
-  projectId: "basket-ball-fm9a4f",
-  storageBucket: "basket-ball-fm9a4f.appspot.com",
-  messagingSenderId: "77124093482",
-  appId: "1:77124093482:web:8acbaa5e728e0433c42553"
+  apiKey: "your-api-key",
+  authDomain: "your.firebaseapp.com",
+  projectId: "your-project-111111",
+  storageBucket: "your-project-111111.appspot.com",
+  messagingSenderId: "00111011011",
+  appId: "1:00111011011:web:1acbaa1e111e0111c11111"
 };
 
 // init firebase
