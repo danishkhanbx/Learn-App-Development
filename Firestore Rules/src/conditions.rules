@@ -1,0 +1,29 @@
+service cloud.firestore {
+    match /databases/{database}/documents {
+
+        // conditions are statements resolving to true or false
+        match /users/{docId==**}{
+
+            // false is default behavior of whats and will always be denied
+            allow create: if false;
+            // Conditional AND: all the a, b, c conditions must be true
+            allow create: if a && b && c;
+            // Conditional OR: only one of the a, b, c conditions needs to be true
+            allow create: if a || b || c;
+
+            // Request is the incoming data from the user
+            // request.auth contains the JSON webtoken with the userId, email, etc
+            // request.resource actual data that the user tries to write in DB
+            // request.time to check the time for when the request was submitted
+            // request.path showing the path to the document and the database
+            // request.method what the user want i.e. read, create, delete, etc
+
+            // Resource is the existing data in the database
+            // resource (Existing data) != request.resource (Incoming data)
+            allow write: if request.resource.data.userId == resource.data.userId;  // immutable data to check if the user is same
+        
+        }
+
+
+    }
+}

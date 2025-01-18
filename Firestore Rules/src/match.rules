@@ -1,0 +1,32 @@
+service cloud.firestore {
+    match /databases/{database}/documents {
+
+
+        // Mentioning docId in {} allows us to access it as a variable inside
+        match /users/{docId} {
+
+            allow read: if docId == 'something';
+        }
+
+        // The rules of users do not apply to sub collection items
+        match /users/{docId} {
+
+            allow read, write;
+
+            match items/{itemId}{
+                allow read, write;
+            }
+        }
+
+        // Adding =** (called recursive wildcard) allows all the same access to the sub collection
+        match /users/{docId=**} {
+
+            allow read, write;
+
+        }
+
+
+
+
+    }
+}

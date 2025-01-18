@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+
+    match /databases/{database}/documents{
+
+        // access other documents somewhere else in the database
+        match /todos/{docId} {
+
+            // to read must have a profile
+            allow create: if isLoggedIn() && hasProfile(request.auth.uid);
+
+            // to delete must be admin
+            allow delete: if isLoggedIn() && isAdmin(request.auth.uid);   
+
+
+        }
+
+        // first we check logged in so to save read costs if the user is not logged in
+        function isLoggedIn(){
+            return request.auth.uid != null;
+        }
+
+        function hasProfile(uid){
+            // exists(path): tells us whether the document exists in the defined path
+            return exists(/databases/$(database)/documents/users/$(uid));
+        }
+
+        function isAdmin(uid){
+            // get(path): return full document payload
+            let profile = get(/databases/$(database)/documents/users/$(uid));
+
+            return profile.data.admin == true;
+        }
+
+        // existsAfter and getAfter when have atomic operations that updates multiple objects at the same time
+
+    }
+
+}
